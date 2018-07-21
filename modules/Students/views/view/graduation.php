@@ -2,8 +2,7 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\LinkPager;
-// echo "<pre>";
-// var_dump($students);
+$thisController = '/students/view/graduation/';
 ?>
 
 <h1 class="text-center"><?= Html::encode($pageTitle) ?></h1>
@@ -17,32 +16,46 @@ use yii\widgets\LinkPager;
       <th onclick="location.href='<?= $sort->createUrl('2') ?>'" class="pointer">Title of work</th>
       <th onclick="location.href='<?= $sort->createUrl('3') ?>'" class="pointer">Created</th>
       <th onclick="location.href='<?= $sort->createUrl('4') ?>'" class="pointer">Edited</th>
+      <th></th>
     </tr>
   </thead>
   <tbody>
 		<?php foreach ($students as $student): ?>
     <tr>
       <td onclick="location.href='<?= Url::to([
-      		'/students/view/graduation/', 'filter' => 'student_'. $student->name
-      ]) ?>'" class="pointer"><?= $student->name ?></td>
+      		$thisController, 'filter' => 'student_'. $student->name
+      ]) ?>'" class="pointer vertical-middle"><?= $student->name ?></td>
       <td onclick="location.href='<?= Url::to([
-      		'/students/view/graduation/', 'filter' => 'professor_'. $student->professorName
-      ]) ?>'" class="pointer"><?= $student->professorName ?></td>
+      		$thisController, 'filter' => 'professor_'. $student->professorName
+      ]) ?>'" class="pointer vertical-middle"><?= $student->professorName ?></td>
       <td onclick="location.href='<?= Url::to([
-      		'/students/view/graduation/', 'filter' => 'exam_'. $student->examName
-      ]) ?>'" class="pointer"><?= $student->examName ?></td>
+      		$thisController, 'filter' => 'exam_'. $student->examName
+      ]) ?>'" class="pointer vertical-middle"><?= $student->examName ?></td>
       <td onclick="location.href='<?= Url::to([
-      		'/students/view/graduation/', 'filter' => 'degree_'. $student->degreeName
-      ]) ?>'" class="pointer"><?= $student->degreeName ?></td>
+      		$thisController, 'filter' => 'degree_'. $student->degreeName
+      ]) ?>'" class="pointer vertical-middle"><?= $student->degreeName ?></td>
       <td onclick="location.href='<?= Url::to([
-      		'/students/view/graduation/', 'filter' => 'work_title_'. $student->work_title
-      ]) ?>'" class="pointer"><?= $student->work_title ?></td>
-      <td onclick="location.href='<?= Url::to([
-      		'/students/view/graduation-edit/', 'gid' => $student->id
-      ]) ?>'" class="pointer"><?= $student->createdDate ?></td>
+      		$thisController, 'filter' => 'work_title_'. $student->work_title
+      ]) ?>'" class="pointer vertical-middle"><?= $student->work_title ?></td>
       <td onclick="location.href='<?= Url::to([
       		'/students/view/graduation-edit/', 'gid' => $student->id
-      ]) ?>'" class="pointer"><?= $student->editedDate ?></td>
+      ]) ?>'" class="pointer vertical-middle"><?= $student->createdDate ?></td>
+      <td onclick="location.href='<?= Url::to([
+      		'/students/view/graduation-edit/', 'gid' => $student->id
+      ]) ?>'" class="pointer vertical-middle"><?= $student->editedDate ?></td>
+      <td class="vertical-middle">
+      	<div class="text-center">
+					<?= Html::a('Edit', [
+								'/students/view/graduation-edit/', 'gid' => $student->id
+	      			], ['class' => 'btn btn-info m_5']) ?>
+	      	<form id="delete_record_<?= $student->id ?>" method="post" action="<?= Url::to([ '/students/view/remove' ]) ?>">
+	      		<input type="hidden" name="id" value="<?= $student->id ?>" />
+
+	    			<input id="form-token" type="hidden" name="<?=Yii::$app->request->csrfParam?>" value="<?=Yii::$app->request->csrfToken?>"/>
+				   	 <?= Html::submitButton('Delete', ['class' => 'btn btn-warning m_5']) ?>
+	      	</form>
+      	</div>
+      </td>
     </tr>
 		<?php endforeach; ?>
   </tbody>
@@ -55,7 +68,7 @@ use yii\widgets\LinkPager;
 	]);?>
 </div>
 <div class="text-center">
-	<?= Html::a('Add Graduation', ['/students/view/graduation-add'], array('class' => 'btn-lg btn-info')); ?>
+	<?= Html::a('Add Graduation', ['/students/view/graduation-add'], array('class' => 'btn btn-lg btn-info')); ?>
 </div>
 <?php
 /**/?>

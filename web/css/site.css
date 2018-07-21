@@ -1,10 +1,14 @@
 html,
 body {
     height: 100%;
-    /*
-    color: #fff;
-    background-color: #6f6f6f;
-    */
+}
+
+.wrap .vertical-middle {
+	vertical-align: middle;
+}
+
+.m_5 {
+	margin: 5px;
 }
 
 .wrap {

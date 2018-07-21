@@ -2,6 +2,7 @@
 
 namespace app\modules\Students\controllers;
 
+use app\modules\Students\models\GraduationDeleteForm;
 use app\modules\Students\models\Student;
 use yii\data\ActiveDataProvider;
 use yii\data\Pagination;
@@ -59,11 +60,7 @@ class ViewController extends Controller
 
 	public function actionGraduation($filter = '')
 	{
-// 		$query = Student::find()->select(['id', 'name', 'work_title', 'professor_id', 'degree_id', 'exam_id', 'created_on', 'edited_on']);
-// 		$students = $query->all();
-		$query = Student::find()
-		->joinWith(['professor', 'degree', 'exam']);
-		// get the total number of articles (but do not fetch the article data yet)
+		$query = Student::find()->joinWith(['professor', 'degree', 'exam']);
 		$count = $query->count();
 
 		$setFilter = ['students.deleted_on' => 1];
@@ -140,22 +137,7 @@ class ViewController extends Controller
 				'sort' => $sort,
 		]);
 
-
-
-		// create a pagination object with the total count
 		$students = $DataProvider->getModels();
-
-// 		$students = $query->select([
-// 				'students.id',
-// 				'students.name', 'students.work_title',
-// 				'students.professor_id', 'students.degree_id',
-// 				'students.exam_id', 'students.created_on', 'students.edited_on'
-// 		])
-// 		->where( $setFilter )
-// 		->orderBy($sort->orders)
-// 		->offset($pages->offset)
-// 		->limit($pages->limit)
-// 		->all();
 
 		return $this->render('graduation', [
 				'pageTitle' => 'Students examination for graduation:',
@@ -178,7 +160,6 @@ class ViewController extends Controller
 
 			return $this->redirect(['/students/view/graduation']);
 		} else {
-			// either the page is initially displayed or there is some validation error
 			return $this->render('graduation_add', [
 					'pageTitle' => 'New graduation:',
 					'model' => $model
@@ -192,7 +173,6 @@ class ViewController extends Controller
 		$model = new GraduationAddForm();
 		$query = Student::find()->select(['id', 'name', 'work_title', 'professor_id', 'degree_id', 'exam_id', 'created_on', 'edited_on']);
 		$student = $query->where(['id' => $gid])->one();
-// 		var_dump($student->attributes);exit;
 
 		if ($model->load(Yii::$app->request->post()) && $model->validate()) {
 
@@ -208,6 +188,28 @@ class ViewController extends Controller
 					'model' => $model
 			]);
 		}
+	}
+
+	public function actionRemove()
+	{
+
+		$model = new GraduationDeleteForm();
+		$recordId = Yii::$app->request->post()['id'];
+
+		if ($model->load(Yii::$app->request->post(), '') && $model->validate()) {
+
+			$query = Student::find()->select(['id', 'deleted_on']);
+			$student = $query->where(['id' => $recordId])->one();
+			$updateRecord = [
+					'id' => $recordId,
+					'deleted_on' => (new \DateTime())->format('Y-m-d H:i:s')
+			];
+
+			$student->setAttributes($updateRecord, false);
+			$student->save();
+
+		}
+		return $this->redirect(Yii::$app->request->referrer);
 	}
 }
 
