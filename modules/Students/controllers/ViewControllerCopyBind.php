@@ -13,7 +13,6 @@ use Yii;
 
 class ViewController extends Controller
 {
-	const PAGE_SIZE = 5;
 	private $filterAttributes = [
 			'1' => [
 					'asc' => ['students.name' => SORT_ASC],
@@ -64,17 +63,23 @@ class ViewController extends Controller
 		$query = Student::find()->joinWith(['professor', 'degree', 'exam']);
 		$count = $query->count();
 
-		$setFilter = ['students.deleted_on' => 1];
+		$setFilter = ['students.deleted_on' => ':delete'];
+		$bindParams = [ ':delete' => 1 ];
 		if ($filter) {
 			$filterTokens = explode('_', $filter);
 			if ($filterTokens[0] != 'work') {
-				$setFilter[array_shift($filterTokens) .'s.name'] = implode('_', $filterTokens);
+				$setFilter[array_shift($filterTokens) .'s.name'] = ':name';
+				$bindParams[':name'] = implode('_', $filterTokens);
 			} else {
 				array_shift($filterTokens);
 				array_shift($filterTokens);
-				$setFilter['students.work_title'] = implode('_', $filterTokens);
+				$setFilter['students.work_title'] = ':work_title';
+				$bindParams[':work_title'] = implode('_', $filterTokens);
 			}
 		}
+
+		// 		var_dump($setFilter);
+		// 		var_dump($bindParams);exit;
 
 		$sort = new Sort([
 				'attributes' => [
@@ -124,7 +129,7 @@ class ViewController extends Controller
 		]);
 
 		$pages = new Pagination(['totalCount' => $count]);
-		$pages->setPageSize(self::PAGE_SIZE);
+		$pages->setPageSize(5);
 
 		$DataProvider = new ActiveDataProvider([
 				'query' => $query->select([
@@ -133,7 +138,8 @@ class ViewController extends Controller
 						'students.professor_id', 'students.degree_id',
 						'students.exam_id', 'students.created_on', 'students.edited_on'
 				])
-				->where( $setFilter ),
+				->where( $setFilter )
+				->oarams( $bindParams ),
 				'pagination' => $pages,
 				'sort' => $sort,
 		]);
@@ -201,7 +207,6 @@ class ViewController extends Controller
 
 			$query = Student::find()->select(['id', 'deleted_on']);
 			$student = $query->where(['id' => $recordId])->one();
-			if (count($student) <= 0) return $this->redirect(Yii::$app->request->referrer);
 			$updateRecord = [
 					'id' => $recordId,
 					'deleted_on' => (new \DateTime())->format('Y-m-d H:i:s')
